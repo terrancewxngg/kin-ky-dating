@@ -1,36 +1,29 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# kin-ky
 
-## Getting Started
+A blind dating platform built exclusively for UBC students. Every week, users are matched with someone new based on questionnaire compatibility -no swiping, no browsing profiles.
 
-First, run the development server:
+**Live at [kin-ky.com](https://www.kin-ky.com)**
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## How It Works
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. Sign up with a verified `@student.ubc.ca` email
+2. Complete your profile and answer 10 compatibility questions
+3. Get matched weekly with a compatible student
+4. Progress through a 3-tier reveal system:
+   - **Tier 1** -See your match's name, year, faculty, and icebreaker answers
+   - **Tier 2** -Both say "I'm down" to unlock photos
+   - **Tier 3** -Both confirm the date to unlock Instagram
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Compatibility-based matching** -Pairs users using Jaccard similarity and scale proximity scoring across questionnaire answers
+- **Gender & match preference filtering** -Users specify their gender and who they want to be matched with
+- **Progressive reveal** -A 3-tier system that gradually shares more information as mutual interest is confirmed
+- **Weekly match rounds** -Fresh matches every week with no rematching of past pairs
+- **Admin dashboard** -Manage rounds, schedule dates, run the matching algorithm, and view match statistics
 
-## Learn More
+## Tech Stack
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Frontend**: Next.js 16, React 19, TypeScript
+- **Backend**: Supabase (PostgreSQL, Auth, Storage)
+- **Deployment**: Vercel
