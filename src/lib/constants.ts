@@ -19,13 +19,10 @@ export const ICEBREAKER_QUESTION_IDS = ["q2", "q4", "q5"];
 export const MAX_BIO = 200;
 
 export const PRONOUNS_OPTIONS = [
-  "he/him",
-  "she/her",
-  "they/them",
-  "he/they",
-  "she/they",
-  "any pronouns",
-  "prefer not to say",
+  "He / Him",
+  "She / Her",
+  "They / Them",
+  "Prefer not to say",
 ];
 
 export const YEAR_OPTIONS = [
@@ -33,9 +30,20 @@ export const YEAR_OPTIONS = [
   "2nd year",
   "3rd year",
   "4th year",
-  "5th year+",
-  "Graduate",
-  "Alumni",
+  "5th year",
+];
+
+export const GENDER_OPTIONS = [
+  "Male",
+  "Female",
+  "Non-binary",
+  "Prefer not to say",
+];
+
+export const MATCH_PREFERENCE_OPTIONS = [
+  "Men",
+  "Women",
+  "Open to all",
 ];
 
 export const FACULTY_OPTIONS = [

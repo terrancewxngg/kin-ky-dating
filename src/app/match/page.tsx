@@ -66,7 +66,7 @@ export default async function MatchPage() {
   // Always fetch basic profile info (Tier 1)
   const { data: partnerProfile } = await supabase
     .from("profiles")
-    .select("display_name, pronouns, year, faculty, photo_url, instagram, phone")
+    .select("display_name, pronouns, year, faculty, photo_url, instagram")
     .eq("id", partnerId)
     .single();
 
@@ -104,7 +104,6 @@ export default async function MatchPage() {
         // Only include photo at Tier 2+, contact at Tier 3
         photoUrl: tier >= 2 ? partnerProfile.photo_url : null,
         instagram: tier >= 3 ? partnerProfile.instagram : null,
-        phone: tier >= 3 ? partnerProfile.phone : null,
       }
     : null;
 

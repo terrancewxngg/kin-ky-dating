@@ -13,7 +13,6 @@ interface MatchCard {
   icebreakers: { question: string; answer: string }[];
   photoUrl?: string | null;
   instagram?: string | null;
-  phone?: string | null;
 }
 
 interface Schedule {
@@ -284,7 +283,7 @@ export default function MatchClient({
               <div>
                 <div style={{ fontSize: 15, fontWeight: 600, color: "var(--accent)", marginBottom: 6 }}>You&apos;re confirmed!</div>
                 <p style={{ fontSize: 14, color: "var(--text-muted)", lineHeight: 1.5 }}>
-                  Waiting for {matchCard.displayName} to confirm... Once they do, Instagram + phone will unlock.
+                  Waiting for {matchCard.displayName} to confirm... Once they do, Instagram will unlock.
                 </p>
                 <div style={{ marginTop: 12, padding: "10px 16px", background: "var(--accent-glow)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
                   <div style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--accent)", animation: "pulse 2s infinite" }} />
@@ -294,7 +293,7 @@ export default function MatchClient({
             ) : (
               <div>
                 <p style={{ fontSize: 14, color: "var(--text-muted)", marginBottom: 16, lineHeight: 1.5 }}>
-                  Ready to meet? Both confirm to unlock Instagram + phone number.
+                  Ready to meet? Both confirm to unlock Instagram.
                 </p>
                 <Btn full onClick={handleConfirm} disabled={actionLoading}>
                   {actionLoading ? "..." : "Confirm date ✦"}
@@ -305,28 +304,15 @@ export default function MatchClient({
         )}
 
         {/* Tier 3: Contact info */}
-        {tier === 3 && (matchCard.instagram || matchCard.phone) && (
+        {tier === 3 && matchCard.instagram && (
           <Card className="fade-up fade-up-2" style={{ marginBottom: 20 }}>
             <h3 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-muted)", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.08em" }}>Contact</h3>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {matchCard.instagram && (
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <span style={{ fontSize: 18 }}>📸</span>
-                  <div>
-                    <div style={{ fontSize: 12, color: "var(--text-dim)" }}>Instagram</div>
-                    <div style={{ fontSize: 15, fontWeight: 500, color: "var(--text)" }}>{matchCard.instagram}</div>
-                  </div>
-                </div>
-              )}
-              {matchCard.phone && (
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <span style={{ fontSize: 18 }}>📱</span>
-                  <div>
-                    <div style={{ fontSize: 12, color: "var(--text-dim)" }}>Phone</div>
-                    <div style={{ fontSize: 15, fontWeight: 500, color: "var(--text)" }}>{matchCard.phone}</div>
-                  </div>
-                </div>
-              )}
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 18 }}>📸</span>
+              <div>
+                <div style={{ fontSize: 12, color: "var(--text-dim)" }}>Instagram</div>
+                <div style={{ fontSize: 15, fontWeight: 500, color: "var(--text)" }}>{matchCard.instagram}</div>
+              </div>
             </div>
           </Card>
         )}

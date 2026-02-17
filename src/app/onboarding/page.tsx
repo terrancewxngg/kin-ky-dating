@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-browser";
-import { PRONOUNS_OPTIONS, YEAR_OPTIONS, FACULTY_OPTIONS, MAX_BIO } from "@/lib/constants";
+import { PRONOUNS_OPTIONS, YEAR_OPTIONS, FACULTY_OPTIONS, GENDER_OPTIONS, MATCH_PREFERENCE_OPTIONS, MAX_BIO } from "@/lib/constants";
 import { Shell, Card, Input, TextArea, Select, Btn, Checkbox, Alert } from "@/components/ui";
 
 interface Question {
@@ -23,7 +23,8 @@ export default function OnboardingPage() {
   const [faculty, setFaculty] = useState("");
   const [bio, setBio] = useState("");
   const [instagram, setInstagram] = useState("");
-  const [phone, setPhone] = useState("");
+  const [gender, setGender] = useState("");
+  const [matchPreference, setMatchPreference] = useState("");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [confirmed, setConfirmed] = useState(false);
@@ -58,7 +59,8 @@ export default function OnboardingPage() {
     if (!displayName.trim()) return setError("Display name is required.");
     if (!photoFile) return setError("A photo is required.");
     if (!instagram.trim()) return setError("Instagram handle is required.");
-    if (!phone.trim()) return setError("Phone number is required.");
+    if (!gender) return setError("Gender is required.");
+    if (!matchPreference) return setError("Match preference is required.");
     if (!confirmed) return setError("You must confirm you're a UBC student and 18+.");
     if (bio.length > MAX_BIO) return setError(`Bio must be under ${MAX_BIO} characters.`);
 
@@ -83,7 +85,8 @@ export default function OnboardingPage() {
       faculty: faculty || null,
       bio: bio.trim() || null,
       instagram: instagram.trim(),
-      phone: phone.trim(),
+      gender,
+      match_preference: matchPreference,
       photo_url: urlData.publicUrl,
       confirmed_student: confirmed,
       onboarded: false,
@@ -167,10 +170,11 @@ export default function OnboardingPage() {
             </div>
 
             <Input label="Instagram handle *" value={instagram} onChange={setInstagram} placeholder="@yourhandle" />
-            <Input label="Phone number *" value={phone} onChange={setPhone} placeholder="e.g. 604-555-1234" />
+            <Select label="Gender *" value={gender} onChange={setGender} options={GENDER_OPTIONS} placeholder="Select gender" />
+            <Select label="Match preference *" value={matchPreference} onChange={setMatchPreference} options={MATCH_PREFERENCE_OPTIONS} placeholder="Who do you want to be matched with?" />
 
             <Checkbox label="I confirm I'm a current UBC student and at least 18 years old." checked={confirmed} onChange={setConfirmed} />
-            <Btn full onClick={handleSaveProfile} disabled={!displayName.trim() || !photoFile || !instagram.trim() || !phone.trim() || !confirmed || loading}>
+            <Btn full onClick={handleSaveProfile} disabled={!displayName.trim() || !photoFile || !instagram.trim() || !gender || !matchPreference || !confirmed || loading}>
               {loading ? "Saving..." : "Continue to Questions →"}
             </Btn>
           </Card>

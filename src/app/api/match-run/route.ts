@@ -81,9 +81,52 @@ export async function POST(request: NextRequest) {
     alreadyMatchedThisRound.add(m.user2_id);
   });
 
-  const userIds = pool.map((p) => p.user_id).filter((id) => !alreadyMatchedThisRound.has(id));
+  let userIds = pool.map((p) => p.user_id).filter((id) => !alreadyMatchedThisRound.has(id));
+
+  // Exclude admin accounts from matching
+  const { data: adminProfiles } = await admin.from("profiles").select("id").eq("is_admin", true).in("id", userIds);
+  const adminSet = new Set((adminProfiles || []).map((p) => p.id));
+  userIds = userIds.filter((id) => !adminSet.has(id));
+
+  // Exclude explicitly excluded users
+  const { data: excludedUsers } = await admin.from("excluded_users").select("user_id").in("user_id", userIds);
+  const excludedSet = new Set((excludedUsers || []).map((e) => e.user_id));
+  userIds = userIds.filter((id) => !excludedSet.has(id));
+
   if (userIds.length < 2) {
     return NextResponse.json({ error: "Not enough unmatched users", matched: 0 });
+  }
+
+  // Fetch gender and match preference for all pool users
+  const { data: profileData } = await admin
+    .from("profiles")
+    .select("id, gender, match_preference")
+    .in("id", userIds);
+
+  const genderMap: Record<string, string> = {};
+  const prefMap: Record<string, string> = {};
+  (profileData || []).forEach((p) => {
+    if (p.gender) genderMap[p.id] = p.gender;
+    if (p.match_preference) prefMap[p.id] = p.match_preference;
+  });
+
+  function isPreferenceCompatible(a: string, b: string): boolean {
+    const genderA = genderMap[a];
+    const genderB = genderMap[b];
+    const prefA = prefMap[a];
+    const prefB = prefMap[b];
+
+    // If either user has no gender/preference data, skip them
+    if (!genderA || !genderB || !prefA || !prefB) return false;
+
+    const matchesPref = (pref: string, gender: string): boolean => {
+      if (pref === "Open to all") return true;
+      if (pref === "Men" && gender === "Male") return true;
+      if (pref === "Women" && gender === "Female") return true;
+      return false;
+    };
+
+    return matchesPref(prefA, genderB) && matchesPref(prefB, genderA);
   }
 
   // Fetch question types
@@ -112,6 +155,7 @@ export async function POST(request: NextRequest) {
       const b = userIds[j];
       if (isBlocked(a, b)) continue;
       if (pastPairs.has(`${a}:${b}`)) continue;
+      if (!isPreferenceCompatible(a, b)) continue;
 
       const score = computeScore(answerMap[a] || {}, answerMap[b] || {}, questionTypes);
       scoredPairs.push({ a, b, score });

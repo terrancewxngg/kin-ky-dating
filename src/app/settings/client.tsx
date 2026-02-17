@@ -11,19 +11,16 @@ export default function SettingsClient({
   isAdmin,
   photoUrl,
   instagram: initialIg,
-  phone: initialPhone,
 }: {
   userId: string;
   email: string;
   isAdmin: boolean;
   photoUrl: string | null;
   instagram: string;
-  phone: string;
 }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [loading, setLoading] = useState(false);
   const [ig, setIg] = useState(initialIg);
-  const [ph, setPh] = useState(initialPhone);
   const [preview, setPreview] = useState<string | null>(photoUrl);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
@@ -56,7 +53,6 @@ export default function SettingsClient({
     const { error } = await supabase.from("profiles").update({
       photo_url: newPhotoUrl,
       instagram: ig.trim() || null,
-      phone: ph.trim() || null,
     }).eq("id", userId);
 
     setSaving(false);
@@ -114,7 +110,6 @@ export default function SettingsClient({
           </div>
 
           <Input label="Instagram handle" value={ig} onChange={setIg} placeholder="@yourhandle" />
-          <Input label="Phone number" value={ph} onChange={setPh} placeholder="e.g. 604-555-1234" />
 
           <Btn onClick={handleSave} disabled={saving}>
             {saving ? "Saving..." : "Save Changes"}
