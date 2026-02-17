@@ -203,7 +203,7 @@ export default function MatchClient({
   const t = tierTitles[tier];
 
   const suggestedMessages = [
-    `Hey ${matchCard.displayName}! We matched on blind@ubc — want to grab a coffee this week?`,
+    `Hey ${matchCard.displayName}! We matched on kin-ky — want to grab a coffee this week?`,
     `Hi ${matchCard.displayName}! Looks like we're this week's match. What's your go-to spot on campus?`,
     `Hey! I'm your blind date match. Want to meet up sometime this week?`,
   ];

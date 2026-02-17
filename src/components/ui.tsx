@@ -6,13 +6,8 @@ export function Logo({ size = "normal" }: { size?: "normal" | "large" }) {
   return (
     <div className="text-center" style={{ marginBottom: size === "large" ? 40 : 24, cursor: "default" }}>
       <div style={{ fontSize: size === "large" ? 40 : 28, fontFamily: "'Fraunces', serif", fontWeight: 700, color: "var(--accent)", letterSpacing: "-0.02em", lineHeight: 1.1 }}>
-        blind<span style={{ color: "var(--text)" }}>@ubc</span>
+        kin-ky
       </div>
-      {size === "large" && (
-        <div style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 6, fontStyle: "italic", fontFamily: "'Fraunces', serif" }}>
-          where strangers become stories
-        </div>
-      )}
     </div>
   );
 }

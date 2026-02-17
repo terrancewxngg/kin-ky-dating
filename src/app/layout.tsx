@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "blind@ubc — where strangers become stories",
-  description: "Weekly blind dates for UBC students",
+  title: "kin-ky",
+  description: "Get matched with a UBC student. No swiping. Just real matches.",
 };
 
 export default function RootLayout({

@@ -9,7 +9,7 @@ import { Shell, Card, Input, TextArea, Select, Btn, Checkbox, Alert } from "@/co
 interface Question {
   id: string;
   text: string;
-  type: "scale" | "choice";
+  type: "scale" | "choice" | "multi_choice";
   options: string[] | null;
   left_label: string | null;
   right_label: string | null;
@@ -27,7 +27,7 @@ export default function OnboardingPage() {
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [confirmed, setConfirmed] = useState(false);
-  const [answers, setAnswers] = useState<Record<string, string | number>>({});
+  const [answers, setAnswers] = useState<Record<string, string | number | string[]>>({});
   const [questions, setQuestions] = useState<Question[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -96,8 +96,7 @@ export default function OnboardingPage() {
 
   const handleSaveAnswers = async () => {
     setError("");
-    const answered = Object.keys(answers).length;
-    if (answered < 10) return setError(`Please answer all 10 questions (${answered}/10).`);
+    if (answeredCount < 10) return setError(`Please answer all 10 questions (${answeredCount}/10).`);
 
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
@@ -106,7 +105,7 @@ export default function OnboardingPage() {
     const rows = Object.entries(answers).map(([question_id, answer]) => ({
       user_id: user.id,
       question_id,
-      answer: String(answer),
+      answer: Array.isArray(answer) ? answer.join(", ") : String(answer),
     }));
 
     const { error: dbError } = await supabase.from("questionnaire_answers").upsert(rows, {
@@ -121,7 +120,12 @@ export default function OnboardingPage() {
     router.refresh();
   };
 
+  const answeredCount = Object.values(answers).filter((v) => Array.isArray(v) ? v.length > 0 : v !== undefined).length;
   const setAnswer = (qid: string, val: string | number) => setAnswers((prev) => ({ ...prev, [qid]: val }));
+  const toggleMulti = (qid: string, opt: string) => setAnswers((prev) => {
+    const current = (prev[qid] as string[]) || [];
+    return { ...prev, [qid]: current.includes(opt) ? current.filter((o) => o !== opt) : [...current, opt] };
+  });
 
   if (step === 1) {
     return (
@@ -186,7 +190,7 @@ export default function OnboardingPage() {
           </div>
           <h2 style={{ fontFamily: "'Fraunces', serif", fontWeight: 500, fontSize: 22, marginBottom: 4 }}>Quick 10</h2>
           <p style={{ fontSize: 14, color: "var(--text-muted)", marginBottom: 24 }}>
-            Answer these to help us find your person. {Object.keys(answers).length}/10 answered.
+            Answer these to help us find your person. {answeredCount}/10 answered.
           </p>
           {error && <Alert>{error}</Alert>}
           {questions.map((q, qi) => (
@@ -197,8 +201,8 @@ export default function OnboardingPage() {
                 marginBottom: 24,
                 padding: 16,
                 borderRadius: 12,
-                background: answers[q.id] !== undefined ? "var(--accent-glow)" : "var(--bg)",
-                border: `1px solid ${answers[q.id] !== undefined ? "rgba(245,158,11,0.2)" : "var(--border)"}`,
+                background: (Array.isArray(answers[q.id]) ? (answers[q.id] as string[]).length > 0 : answers[q.id] !== undefined) ? "var(--accent-glow)" : "var(--bg)",
+                border: `1px solid ${(Array.isArray(answers[q.id]) ? (answers[q.id] as string[]).length > 0 : answers[q.id] !== undefined) ? "rgba(245,158,11,0.2)" : "var(--border)"}`,
                 transition: "all 0.3s",
               }}
             >
@@ -229,6 +233,29 @@ export default function OnboardingPage() {
                     ))}
                   </div>
                 </div>
+              ) : q.type === "multi_choice" ? (
+                <div>
+                  <div style={{ fontSize: 11, color: "var(--text-dim)", marginBottom: 6 }}>Select all that apply</div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                    {(q.options || []).map((opt: string) => {
+                      const selected = ((answers[q.id] as string[]) || []).includes(opt);
+                      return (
+                        <button
+                          key={opt}
+                          onClick={() => toggleMulti(q.id, opt)}
+                          style={{
+                            padding: "8px 14px", borderRadius: 8, border: "none", cursor: "pointer",
+                            background: selected ? "var(--accent)" : "var(--surface-hover)",
+                            color: selected ? "var(--bg)" : "var(--text-muted)",
+                            fontWeight: selected ? 600 : 400, fontSize: 13, transition: "all 0.2s", fontFamily: "inherit",
+                          }}
+                        >
+                          {opt}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               ) : (
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                   {(q.options || []).map((opt: string) => (
@@ -249,8 +276,8 @@ export default function OnboardingPage() {
               )}
             </div>
           ))}
-          <Btn full onClick={handleSaveAnswers} disabled={Object.keys(answers).length < 10 || loading} style={{ marginTop: 8 }}>
-            {loading ? "Saving..." : `Complete Setup (${Object.keys(answers).length}/10) →`}
+          <Btn full onClick={handleSaveAnswers} disabled={answeredCount < 10 || loading} style={{ marginTop: 8 }}>
+            {loading ? "Saving..." : `Complete Setup (${answeredCount}/10) →`}
           </Btn>
         </Card>
       </div>

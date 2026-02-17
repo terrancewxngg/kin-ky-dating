@@ -136,6 +136,13 @@ export default function Home() {
           padding: "60px 0 40px",
         }}
       >
+        <p className="fade-up" style={{ fontSize: 13, color: "var(--text-dim)", marginBottom: 24 }}>
+          Created by{" "}
+          <a href="https://www.instagram.com/terrancewxngg/" target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent)", textDecoration: "none" }}>
+            Terrance
+          </a>
+        </p>
+
         <div className="fade-up" style={{ animation: "float 4s ease-in-out infinite" }}>
           <div
             style={{
@@ -147,7 +154,7 @@ export default function Home() {
               lineHeight: 1.1,
             }}
           >
-            blind<span style={{ color: "var(--text)" }}>@ubc</span>
+            kin-ky
           </div>
         </div>
 
@@ -156,12 +163,11 @@ export default function Home() {
           style={{
             fontSize: "clamp(18px, 4vw, 24px)",
             color: "var(--text-muted)",
-            fontStyle: "italic",
             fontFamily: "'Fraunces', serif",
             marginTop: 12,
           }}
         >
-          where strangers become stories
+          Get matched with a UBC student.
         </p>
 
         <p
@@ -169,13 +175,24 @@ export default function Home() {
           style={{
             fontSize: 16,
             color: "var(--text-dim)",
-            marginTop: 20,
-            maxWidth: 440,
+            marginTop: 12,
+            maxWidth: 480,
             lineHeight: 1.6,
           }}
         >
-          Weekly blind matching for UBC students. Answer a few questions, get paired with someone
-          new, and see where it goes.
+          No swiping. Just real matches. See their photos and prompts before you decide. If it&apos;s mutual, we&apos;ll unlock the connection and let you handle the rest.
+        </p>
+
+        <p
+          className="fade-up fade-up-2"
+          style={{
+            fontSize: 14,
+            color: "var(--text-dim)",
+            marginTop: 16,
+            fontStyle: "italic",
+          }}
+        >
+          yes, this actually works and people are actually meeting through this.
         </p>
 
         <div className="fade-up fade-up-3" style={{ marginTop: 36, display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
@@ -365,11 +382,8 @@ export default function Home() {
             color: "var(--accent)",
           }}
         >
-          blind<span style={{ color: "var(--text)" }}>@ubc</span>
+          kin-ky
         </div>
-        <p style={{ fontSize: 13, color: "var(--text-dim)", fontStyle: "italic", fontFamily: "'Fraunces', serif" }}>
-          where strangers become stories
-        </p>
         <div style={{ display: "flex", gap: 20, fontSize: 13 }}>
           <Link href="/login" style={{ color: "var(--text-muted)", textDecoration: "none" }}>
             Log in
@@ -379,7 +393,14 @@ export default function Home() {
           </Link>
         </div>
         <p style={{ fontSize: 12, color: "var(--text-dim)", marginTop: 4 }}>
-          Made for UBC students
+          Questions? DM{" "}
+          <a href="https://www.instagram.com/terrancewxngg/" target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent)", textDecoration: "none" }}>
+            @terrancewxngg
+          </a>
+          {" "}on ig or email{" "}
+          <a href="mailto:terrancewxngg@gmail.com" style={{ color: "var(--accent)", textDecoration: "none" }}>
+            terrancewxngg@gmail.com
+          </a>
         </p>
       </footer>
     </Shell>
