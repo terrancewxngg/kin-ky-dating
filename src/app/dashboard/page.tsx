@@ -22,7 +22,7 @@ export default async function DashboardPage() {
 
   const { data: match } = await supabase
     .from("matches")
-    .select("id")
+    .select("id, user1_id, user2_id")
     .eq("round_key", roundKey)
     .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
     .single();
@@ -32,13 +32,33 @@ export default async function DashboardPage() {
   else if (poolEntry) status = "queued";
 
   let schedule = null;
-  if (status === "matched") {
-    const { data: scheduleData } = await supabase
-      .from("round_schedule")
-      .select("date, time, location, notes")
-      .eq("round_key", roundKey)
-      .single();
-    schedule = scheduleData;
+  let tier = 1;
+
+  if (status === "matched" && match) {
+    const partnerId = match.user1_id === user.id ? match.user2_id : match.user1_id;
+
+    const { data: interestRows } = await supabase
+      .from("match_interest")
+      .select("user_id, interested, confirmed")
+      .eq("match_id", match.id);
+
+    const myInterest = interestRows?.find((r) => r.user_id === user.id);
+    const partnerInterest = interestRows?.find((r) => r.user_id === partnerId);
+
+    const bothInterested = (myInterest?.interested || false) && (partnerInterest?.interested || false);
+    const bothConfirmed = (myInterest?.confirmed || false) && (partnerInterest?.confirmed || false);
+
+    if (bothConfirmed) tier = 3;
+    else if (bothInterested) tier = 2;
+
+    if (tier === 3) {
+      const { data: scheduleData } = await supabase
+        .from("round_schedule")
+        .select("date, time, location, notes")
+        .eq("round_key", roundKey)
+        .single();
+      schedule = scheduleData;
+    }
   }
 
   return (
@@ -50,6 +70,7 @@ export default async function DashboardPage() {
       roundKey={roundKey}
       initialStatus={status}
       schedule={schedule}
+      tier={tier}
     />
   );
 }

@@ -19,6 +19,7 @@ export default function DashboardClient({
   roundKey,
   initialStatus,
   schedule,
+  tier = 1,
 }: {
   userId: string;
   email: string;
@@ -27,6 +28,7 @@ export default function DashboardClient({
   roundKey: string;
   initialStatus: "not_joined" | "queued" | "matched";
   schedule?: Schedule | null;
+  tier?: number;
 }) {
   const [status, setStatus] = useState(initialStatus);
   const [loading, setLoading] = useState(false);
@@ -49,6 +51,12 @@ export default function DashboardClient({
   };
 
   const sc = statusConfig[status];
+
+  const matchedMessage = tier === 3
+    ? "It's a date! Contact info is unlocked. Reach out and make it happen."
+    : tier === 2
+    ? "Photos are revealed! Confirm the date to unlock contact info."
+    : "You've been matched! See your preview and decide if you're down.";
 
   return (
     <Shell>
@@ -94,9 +102,9 @@ export default function DashboardClient({
           {status === "matched" && (
             <div>
               <p style={{ fontSize: 14, color: "var(--text-muted)", marginBottom: 16, lineHeight: 1.6 }}>
-                You&apos;ve been matched! Click below to see who fate picked for you.
+                {matchedMessage}
               </p>
-              {schedule && (
+              {tier === 3 && schedule && (
                 <div style={{ padding: "14px 16px", background: "var(--accent-glow)", borderRadius: 10, marginBottom: 16, display: "flex", flexDirection: "column", gap: 6 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: "var(--accent)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Date scheduled</div>
                   <div style={{ fontSize: 14, color: "var(--text)" }}>
@@ -119,11 +127,11 @@ export default function DashboardClient({
         </Card>
 
         <Card className="fade-up fade-up-2">
-          <h3 style={{ fontSize: 15, fontWeight: 600, marginBottom: 8, color: "var(--text-muted)" }}>How it works</h3>
+          <h3 style={{ fontSize: 15, fontWeight: 600, marginBottom: 8, color: "var(--text-muted)" }}>How the reveal works</h3>
           <div style={{ fontSize: 14, color: "var(--text-dim)", lineHeight: 1.8 }}>
-            <div style={{ display: "flex", gap: 10, marginBottom: 6 }}><span style={{ color: "var(--accent)" }}>01</span> Join the weekly round</div>
-            <div style={{ display: "flex", gap: 10, marginBottom: 6 }}><span style={{ color: "var(--accent)" }}>02</span> We pair you with another student</div>
-            <div style={{ display: "flex", gap: 10, marginBottom: 6 }}><span style={{ color: "var(--accent)" }}>03</span> See your match card with safe info</div>
+            <div style={{ display: "flex", gap: 10, marginBottom: 6 }}><span style={{ color: "var(--accent)" }}>01</span> See their vibe — name, bio, icebreakers</div>
+            <div style={{ display: "flex", gap: 10, marginBottom: 6 }}><span style={{ color: "var(--accent)" }}>02</span> Both say &quot;I&apos;m down&quot; → photos unlock</div>
+            <div style={{ display: "flex", gap: 10, marginBottom: 6 }}><span style={{ color: "var(--accent)" }}>03</span> Both confirm → contact info unlocked</div>
             <div style={{ display: "flex", gap: 10 }}><span style={{ color: "var(--accent)" }}>04</span> Reach out, meet up, make a story</div>
           </div>
         </Card>

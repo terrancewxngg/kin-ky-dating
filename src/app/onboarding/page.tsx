@@ -22,6 +22,10 @@ export default function OnboardingPage() {
   const [year, setYear] = useState("");
   const [faculty, setFaculty] = useState("");
   const [bio, setBio] = useState("");
+  const [instagram, setInstagram] = useState("");
+  const [phone, setPhone] = useState("");
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [confirmed, setConfirmed] = useState(false);
   const [answers, setAnswers] = useState<Record<string, string | number>>({});
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -41,15 +45,34 @@ export default function OnboardingPage() {
     loadQuestions();
   }, []);
 
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { setError("Photo must be under 5MB."); return; }
+    setPhotoFile(file);
+    setPhotoPreview(URL.createObjectURL(file));
+  };
+
   const handleSaveProfile = async () => {
     setError("");
     if (!displayName.trim()) return setError("Display name is required.");
+    if (!photoFile) return setError("A photo is required.");
+    if (!instagram.trim()) return setError("Instagram handle is required.");
+    if (!phone.trim()) return setError("Phone number is required.");
     if (!confirmed) return setError("You must confirm you're a UBC student and 18+.");
     if (bio.length > MAX_BIO) return setError(`Bio must be under ${MAX_BIO} characters.`);
 
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return setError("Not logged in.");
+    if (!user) { setLoading(false); return setError("Not logged in."); }
+
+    // Upload photo
+    const ext = photoFile.name.split(".").pop();
+    const path = `${user.id}/photo.${ext}`;
+    const { error: uploadError } = await supabase.storage.from("avatars").upload(path, photoFile, { upsert: true });
+    if (uploadError) { setLoading(false); return setError(uploadError.message); }
+
+    const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
 
     const { error: dbError } = await supabase.from("profiles").upsert({
       id: user.id,
@@ -59,6 +82,9 @@ export default function OnboardingPage() {
       year: year || null,
       faculty: faculty || null,
       bio: bio.trim() || null,
+      instagram: instagram.trim(),
+      phone: phone.trim(),
+      photo_url: urlData.publicUrl,
       confirmed_student: confirmed,
       onboarded: false,
     });
@@ -115,8 +141,32 @@ export default function OnboardingPage() {
             <Select label="Year" value={year} onChange={setYear} options={YEAR_OPTIONS} placeholder="Select year (optional)" />
             <Select label="Faculty / Program" value={faculty} onChange={setFaculty} options={FACULTY_OPTIONS} placeholder="Select faculty (optional)" />
             <TextArea label="Short bio" value={bio} onChange={setBio} placeholder="Something fun about you..." maxLength={MAX_BIO} />
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: "block", fontSize: 13, fontWeight: 500, color: "var(--text-muted)", marginBottom: 6, letterSpacing: "0.02em" }}>Photo *</label>
+              <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                {photoPreview ? (
+                  <div style={{ width: 72, height: 72, borderRadius: 12, overflow: "hidden", flexShrink: 0 }}>
+                    <img src={photoPreview} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  </div>
+                ) : (
+                  <div style={{ width: 72, height: 72, borderRadius: 12, background: "var(--bg)", border: "1px dashed var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-dim)", fontSize: 24, flexShrink: 0 }}>+</div>
+                )}
+                <div>
+                  <label style={{ padding: "8px 16px", borderRadius: 8, background: "var(--surface-hover)", color: "var(--text-muted)", fontSize: 13, cursor: "pointer", display: "inline-block" }}>
+                    {photoFile ? "Change photo" : "Upload photo"}
+                    <input type="file" accept="image/*" onChange={handlePhotoChange} style={{ display: "none" }} />
+                  </label>
+                  <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 4 }}>Max 5MB. This will be revealed to your match.</div>
+                </div>
+              </div>
+            </div>
+
+            <Input label="Instagram handle *" value={instagram} onChange={setInstagram} placeholder="@yourhandle" />
+            <Input label="Phone number *" value={phone} onChange={setPhone} placeholder="e.g. 604-555-1234" />
+
             <Checkbox label="I confirm I'm a current UBC student and at least 18 years old." checked={confirmed} onChange={setConfirmed} />
-            <Btn full onClick={handleSaveProfile} disabled={!displayName.trim() || !confirmed || loading}>
+            <Btn full onClick={handleSaveProfile} disabled={!displayName.trim() || !photoFile || !instagram.trim() || !phone.trim() || !confirmed || loading}>
               {loading ? "Saving..." : "Continue to Questions →"}
             </Btn>
           </Card>
