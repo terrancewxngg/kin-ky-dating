@@ -58,6 +58,12 @@ export default async function MatchPage() {
     answer: a.answer,
   }));
 
+  const { data: scheduleData } = await supabase
+    .from("round_schedule")
+    .select("date, time, location, notes")
+    .eq("round_key", roundKey)
+    .single();
+
   const matchCard = partnerProfile
     ? {
         displayName: partnerProfile.display_name,
@@ -75,6 +81,7 @@ export default async function MatchPage() {
       isAdmin={profile.is_admin}
       matchCard={matchCard}
       partnerEmail={partnerId}
+      schedule={scheduleData}
     />
   );
 }

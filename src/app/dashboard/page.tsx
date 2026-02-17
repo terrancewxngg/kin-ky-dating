@@ -31,6 +31,16 @@ export default async function DashboardPage() {
   if (match) status = "matched";
   else if (poolEntry) status = "queued";
 
+  let schedule = null;
+  if (status === "matched") {
+    const { data: scheduleData } = await supabase
+      .from("round_schedule")
+      .select("date, time, location, notes")
+      .eq("round_key", roundKey)
+      .single();
+    schedule = scheduleData;
+  }
+
   return (
     <DashboardClient
       userId={user.id}
@@ -39,6 +49,7 @@ export default async function DashboardPage() {
       isAdmin={profile.is_admin}
       roundKey={roundKey}
       initialStatus={status}
+      schedule={schedule}
     />
   );
 }

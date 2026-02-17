@@ -4,6 +4,13 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase-browser";
 import { Shell, Card, Nav, Btn } from "@/components/ui";
 
+interface Schedule {
+  date: string;
+  time: string;
+  location: string;
+  notes: string | null;
+}
+
 export default function DashboardClient({
   userId,
   email,
@@ -11,6 +18,7 @@ export default function DashboardClient({
   isAdmin,
   roundKey,
   initialStatus,
+  schedule,
 }: {
   userId: string;
   email: string;
@@ -18,6 +26,7 @@ export default function DashboardClient({
   isAdmin: boolean;
   roundKey: string;
   initialStatus: "not_joined" | "queued" | "matched";
+  schedule?: Schedule | null;
 }) {
   const [status, setStatus] = useState(initialStatus);
   const [loading, setLoading] = useState(false);
@@ -87,6 +96,23 @@ export default function DashboardClient({
               <p style={{ fontSize: 14, color: "var(--text-muted)", marginBottom: 16, lineHeight: 1.6 }}>
                 You&apos;ve been matched! Click below to see who fate picked for you.
               </p>
+              {schedule && (
+                <div style={{ padding: "14px 16px", background: "var(--accent-glow)", borderRadius: 10, marginBottom: 16, display: "flex", flexDirection: "column", gap: 6 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "var(--accent)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Date scheduled</div>
+                  <div style={{ fontSize: 14, color: "var(--text)" }}>
+                    📅 {new Date(schedule.date + "T00:00").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
+                    {" · "}
+                    {(() => {
+                      const [h, m] = schedule.time.split(":");
+                      const hour = parseInt(h);
+                      const ampm = hour >= 12 ? "PM" : "AM";
+                      const h12 = hour % 12 || 12;
+                      return `${h12}:${m} ${ampm}`;
+                    })()}
+                  </div>
+                  <div style={{ fontSize: 14, color: "var(--text-muted)" }}>📍 {schedule.location}</div>
+                </div>
+              )}
               <a href="/match"><Btn full>See Your Match →</Btn></a>
             </div>
           )}

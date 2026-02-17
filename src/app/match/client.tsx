@@ -12,18 +12,27 @@ interface MatchCard {
   icebreakers: { question: string; answer: string }[];
 }
 
+interface Schedule {
+  date: string;
+  time: string;
+  location: string;
+  notes: string | null;
+}
+
 export default function MatchClient({
   userId,
   email,
   isAdmin,
   matchCard,
   partnerEmail,
+  schedule,
 }: {
   userId: string;
   email: string;
   isAdmin: boolean;
   matchCard: MatchCard | null;
   partnerEmail: string;
+  schedule?: Schedule | null;
 }) {
   const [showReport, setShowReport] = useState(false);
   const [reportReason, setReportReason] = useState("");
@@ -101,6 +110,40 @@ export default function MatchClient({
             {[matchCard.year, matchCard.faculty].filter(Boolean).join(" · ") || "UBC Student"}
           </div>
         </Card>
+
+        {schedule && (
+          <Card className="fade-up fade-up-2" style={{ marginBottom: 20 }}>
+            <h3 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-muted)", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.08em" }}>Your Date</h3>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ fontSize: 18 }}>📅</span>
+                <div>
+                  <div style={{ fontSize: 15, fontWeight: 500, color: "var(--text)" }}>
+                    {new Date(schedule.date + "T00:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
+                  </div>
+                  <div style={{ fontSize: 14, color: "var(--text-muted)" }}>
+                    {(() => {
+                      const [h, m] = schedule.time.split(":");
+                      const hour = parseInt(h);
+                      const ampm = hour >= 12 ? "PM" : "AM";
+                      const h12 = hour % 12 || 12;
+                      return `${h12}:${m} ${ampm}`;
+                    })()}
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ fontSize: 18 }}>📍</span>
+                <div style={{ fontSize: 15, fontWeight: 500, color: "var(--text)" }}>{schedule.location}</div>
+              </div>
+              {schedule.notes && (
+                <div style={{ fontSize: 13, color: "var(--text-dim)", fontStyle: "italic", paddingLeft: 28, lineHeight: 1.5 }}>
+                  {schedule.notes}
+                </div>
+              )}
+            </div>
+          </Card>
+        )}
 
         {matchCard.icebreakers.length > 0 && (
           <Card className="fade-up fade-up-2" style={{ marginBottom: 20 }}>
