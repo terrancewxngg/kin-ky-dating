@@ -75,6 +75,7 @@ export default function MatchClient({
   partnerInterested,
   userConfirmed,
   partnerConfirmed,
+  passed,
 }: {
   userId: string;
   matchId: string;
@@ -88,6 +89,7 @@ export default function MatchClient({
   partnerInterested: boolean;
   userConfirmed: boolean;
   partnerConfirmed: boolean;
+  passed: boolean;
 }) {
   const [showReport, setShowReport] = useState(false);
   const [reportReason, setReportReason] = useState("");
@@ -143,6 +145,36 @@ export default function MatchClient({
     setActionLoading(false);
     router.refresh();
   };
+
+  const handlePass = async () => {
+    setActionLoading(true);
+    const supabase = createClient();
+    await supabase.from("match_interest").upsert({
+      match_id: matchId,
+      user_id: userId,
+      passed: true,
+    });
+    setActionLoading(false);
+    router.refresh();
+  };
+
+  if (passed) {
+    return (
+      <Shell>
+        <Nav email={email} isAdmin={isAdmin} currentPage="match" />
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Card className="fade-up" style={{ textAlign: "center" }}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>💫</div>
+            <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 22, marginBottom: 8 }}>This match didn&apos;t work out</h2>
+            <p style={{ color: "var(--text-muted)", fontSize: 14, marginBottom: 20, lineHeight: 1.5 }}>
+              No worries — a new match comes next week.
+            </p>
+            <a href="/dashboard"><Btn>Back to Dashboard</Btn></a>
+          </Card>
+        </div>
+      </Shell>
+    );
+  }
 
   if (!matchCard) {
     return (
@@ -235,6 +267,11 @@ export default function MatchClient({
                 <Btn full onClick={handleInterest} disabled={actionLoading}>
                   {actionLoading ? "..." : "I'm down ✦"}
                 </Btn>
+                <div style={{ marginTop: 10 }}>
+                  <Btn full variant="ghost" onClick={handlePass} disabled={actionLoading} style={{ fontSize: 13, color: "var(--text-dim)" }}>
+                    Pass
+                  </Btn>
+                </div>
               </div>
             )}
           </Card>

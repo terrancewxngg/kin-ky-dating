@@ -33,17 +33,20 @@ export default async function DashboardPage() {
 
   let schedule = null;
   let tier = 1;
+  let passed = false;
 
   if (status === "matched" && match) {
     const partnerId = match.user1_id === user.id ? match.user2_id : match.user1_id;
 
     const { data: interestRows } = await supabase
       .from("match_interest")
-      .select("user_id, interested, confirmed")
+      .select("user_id, interested, confirmed, passed")
       .eq("match_id", match.id);
 
     const myInterest = interestRows?.find((r) => r.user_id === user.id);
     const partnerInterest = interestRows?.find((r) => r.user_id === partnerId);
+
+    passed = (myInterest?.passed || false) || (partnerInterest?.passed || false);
 
     const bothInterested = (myInterest?.interested || false) && (partnerInterest?.interested || false);
     const bothConfirmed = (myInterest?.confirmed || false) && (partnerInterest?.confirmed || false);
@@ -51,7 +54,7 @@ export default async function DashboardPage() {
     if (bothConfirmed) tier = 3;
     else if (bothInterested) tier = 2;
 
-    if (tier === 3) {
+    if (tier === 3 && !passed) {
       const { data: scheduleData } = await supabase
         .from("round_schedule")
         .select("date, time, location, notes")
@@ -71,6 +74,7 @@ export default async function DashboardPage() {
       initialStatus={status}
       schedule={schedule}
       tier={tier}
+      passed={passed}
     />
   );
 }

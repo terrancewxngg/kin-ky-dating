@@ -20,6 +20,7 @@ export default function DashboardClient({
   initialStatus,
   schedule,
   tier = 1,
+  passed = false,
 }: {
   userId: string;
   email: string;
@@ -29,6 +30,7 @@ export default function DashboardClient({
   initialStatus: "not_joined" | "queued" | "matched";
   schedule?: Schedule | null;
   tier?: number;
+  passed?: boolean;
 }) {
   const [status, setStatus] = useState(initialStatus);
   const [loading, setLoading] = useState(false);
@@ -99,7 +101,14 @@ export default function DashboardClient({
               </div>
             </div>
           )}
-          {status === "matched" && (
+          {status === "matched" && passed && (
+            <div>
+              <p style={{ fontSize: 14, color: "var(--text-muted)", marginBottom: 16, lineHeight: 1.6 }}>
+                This match didn&apos;t work out. No worries — a new match comes next week.
+              </p>
+            </div>
+          )}
+          {status === "matched" && !passed && (
             <div>
               <p style={{ fontSize: 14, color: "var(--text-muted)", marginBottom: 16, lineHeight: 1.6 }}>
                 {matchedMessage}

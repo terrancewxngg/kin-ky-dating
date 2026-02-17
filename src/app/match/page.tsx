@@ -34,6 +34,7 @@ export default async function MatchPage() {
         partnerInterested={false}
         userConfirmed={false}
         partnerConfirmed={false}
+        passed={false}
       />
     );
   }
@@ -43,7 +44,7 @@ export default async function MatchPage() {
   // Fetch interest state for both users
   const { data: interestRows } = await supabase
     .from("match_interest")
-    .select("user_id, interested, confirmed")
+    .select("user_id, interested, confirmed, passed")
     .eq("match_id", match.id);
 
   const myInterest = interestRows?.find((r) => r.user_id === user.id);
@@ -53,6 +54,7 @@ export default async function MatchPage() {
   const partnerInterested = partnerInterest?.interested || false;
   const userConfirmed = myInterest?.confirmed || false;
   const partnerConfirmed = partnerInterest?.confirmed || false;
+  const passed = (myInterest?.passed || false) || (partnerInterest?.passed || false);
 
   const bothInterested = userInterested && partnerInterested;
   const bothConfirmed = userConfirmed && partnerConfirmed;
@@ -120,6 +122,7 @@ export default async function MatchPage() {
       partnerInterested={partnerInterested}
       userConfirmed={userConfirmed}
       partnerConfirmed={partnerConfirmed}
+      passed={passed}
     />
   );
 }
