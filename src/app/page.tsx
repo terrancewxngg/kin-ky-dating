@@ -113,8 +113,8 @@ export default function Home() {
   ];
 
   const faqs = [
-    { q: "Is this really anonymous?", a: "Yes. Your profile answers are only used for matching. Your match won't see your responses — just your name and contact when you're both matched." },
     { q: "How does matching work?", a: "Our algorithm pairs you based on compatibility from your questionnaire answers. Each week, you get one curated match." },
+    { q: "What can my match see?", a: "At first, you both see each other's name, year, faculty, and icebreaker answers. If you both say 'I'm down', photos unlock. If you both confirm the date, contact info (Instagram & phone) is shared." },
     { q: "Is it free?", a: "Completely free. No hidden fees, no premium features behind a paywall." },
     { q: "Who can sign up?", a: "Anyone with a valid @student.ubc.ca email address. We verify every account to keep the community safe." },
     { q: "What if I don't like my match?", a: "No pressure! You're not obligated to reach out. A new match comes next week." },
@@ -168,19 +168,6 @@ export default function Home() {
           }}
         >
           Get matched with a UBC student.
-        </p>
-
-        <p
-          className="fade-up fade-up-2"
-          style={{
-            fontSize: 16,
-            color: "var(--text-dim)",
-            marginTop: 12,
-            maxWidth: 480,
-            lineHeight: 1.6,
-          }}
-        >
-          No swiping. Just real matches. See their photos and prompts before you decide. If it&apos;s mutual, we&apos;ll unlock the connection and let you handle the rest.
         </p>
 
         <p
