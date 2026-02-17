@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { NextRequest, NextResponse } from "next/server";
+import { sendMatchNotification } from "@/lib/email";
 
 function computeScore(
   answersA: Record<string, string>,
@@ -178,6 +179,27 @@ export async function POST(request: NextRequest) {
 
   if (newMatches.length > 0) {
     await admin.from("matches").insert(newMatches);
+
+    // Send "you got a match" emails
+    const matchedUserIds = newMatches.flatMap((m) => [m.user1_id, m.user2_id]);
+    const { data: matchedProfiles } = await admin
+      .from("profiles")
+      .select("id, email, display_name")
+      .in("id", matchedUserIds);
+
+    if (matchedProfiles) {
+      const profileMap = Object.fromEntries(matchedProfiles.map((p) => [p.id, p]));
+      const emailPromises = newMatches.flatMap((m) => {
+        const u1 = profileMap[m.user1_id];
+        const u2 = profileMap[m.user2_id];
+        if (!u1 || !u2) return [];
+        return [
+          sendMatchNotification(u1.email, u2.display_name),
+          sendMatchNotification(u2.email, u1.display_name),
+        ];
+      });
+      await Promise.all(emailPromises).catch(() => {});
+    }
   }
 
   return NextResponse.json({

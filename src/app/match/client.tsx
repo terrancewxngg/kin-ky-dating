@@ -15,18 +15,10 @@ interface MatchCard {
   instagram?: string | null;
 }
 
-interface Schedule {
-  date: string;
-  time: string;
-  location: string;
-  notes: string | null;
-}
-
 function TierProgress({ tier }: { tier: number }) {
   const steps = [
     { label: "Preview", desc: "Name, bio, icebreakers" },
-    { label: "Photos", desc: "Both say \"I'm down\"" },
-    { label: "Contact", desc: "Both confirm date" },
+    { label: "Reveal", desc: "Both say \"I'm down\"" },
   ];
   return (
     <div style={{ display: "flex", alignItems: "flex-start", gap: 0, marginBottom: 28, width: "100%" }}>
@@ -68,12 +60,9 @@ export default function MatchClient({
   isAdmin,
   matchCard,
   partnerId,
-  schedule,
   tier,
   userInterested,
   partnerInterested,
-  userConfirmed,
-  partnerConfirmed,
   passed,
 }: {
   userId: string;
@@ -82,12 +71,9 @@ export default function MatchClient({
   isAdmin: boolean;
   matchCard: MatchCard | null;
   partnerId: string;
-  schedule?: Schedule | null;
   tier: number;
   userInterested: boolean;
   partnerInterested: boolean;
-  userConfirmed: boolean;
-  partnerConfirmed: boolean;
   passed: boolean;
 }) {
   const [showReport, setShowReport] = useState(false);
@@ -122,24 +108,10 @@ export default function MatchClient({
 
   const handleInterest = async () => {
     setActionLoading(true);
-    const supabase = createClient();
-    await supabase.from("match_interest").upsert({
-      match_id: matchId,
-      user_id: userId,
-      interested: true,
-    });
-    setActionLoading(false);
-    router.refresh();
-  };
-
-  const handleConfirm = async () => {
-    setActionLoading(true);
-    const supabase = createClient();
-    await supabase.from("match_interest").upsert({
-      match_id: matchId,
-      user_id: userId,
-      interested: true,
-      confirmed: true,
+    await fetch("/api/interest", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ matchId, action: "interested" }),
     });
     setActionLoading(false);
     router.refresh();
@@ -147,11 +119,10 @@ export default function MatchClient({
 
   const handlePass = async () => {
     setActionLoading(true);
-    const supabase = createClient();
-    await supabase.from("match_interest").upsert({
-      match_id: matchId,
-      user_id: userId,
-      passed: true,
+    await fetch("/api/interest", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ matchId, action: "pass" }),
     });
     setActionLoading(false);
     router.refresh();
@@ -166,7 +137,7 @@ export default function MatchClient({
             <div style={{ fontSize: 48, marginBottom: 16 }}>💫</div>
             <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 22, marginBottom: 8 }}>This match didn&apos;t work out</h2>
             <p style={{ color: "var(--text-muted)", fontSize: 14, marginBottom: 20, lineHeight: 1.5 }}>
-              No worries — a new match comes next week.
+              No worries - a new match comes next week.
             </p>
             <a href="/dashboard"><Btn>Back to Dashboard</Btn></a>
           </Card>
@@ -195,14 +166,13 @@ export default function MatchClient({
 
   const tierTitles: Record<number, { sub: string; main: string }> = {
     1: { sub: "This week's match", main: "First look ✦" },
-    2: { sub: "You both said yes!", main: "Photo reveal ✦" },
-    3: { sub: "It's official", main: "It's a date ✦" },
+    2: { sub: "You both said yes!", main: "It's a match ✦" },
   };
 
   const t = tierTitles[tier];
 
   const suggestedMessages = [
-    `Hey ${matchCard.displayName}! We matched on kin-ky — want to grab a coffee this week?`,
+    `Hey ${matchCard.displayName}! We matched on kin-ky - want to grab a coffee this week?`,
     `Hi ${matchCard.displayName}! Looks like we're this week's match. What's your go-to spot on campus?`,
     `Hey! I'm your blind date match. Want to meet up sometime this week?`,
   ];
@@ -251,7 +221,7 @@ export default function MatchClient({
               <div>
                 <div style={{ fontSize: 15, fontWeight: 600, color: "var(--accent)", marginBottom: 6 }}>You&apos;re in!</div>
                 <p style={{ fontSize: 14, color: "var(--text-muted)", lineHeight: 1.5 }}>
-                  Waiting for {matchCard.displayName} to decide... When they&apos;re down too, photos will unlock.
+                  Waiting for {matchCard.displayName} to decide... When they&apos;re down too, photos and Instagram will unlock.
                 </p>
                 <div style={{ marginTop: 12, padding: "10px 16px", background: "var(--accent-glow)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
                   <div style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--accent)", animation: "pulse 2s infinite" }} />
@@ -261,7 +231,7 @@ export default function MatchClient({
             ) : (
               <div>
                 <p style={{ fontSize: 14, color: "var(--text-muted)", marginBottom: 16, lineHeight: 1.5 }}>
-                  Like what you see? Both of you need to click to unlock photos.
+                  Like what you see? Both of you need to click to unlock photos and Instagram.
                 </p>
                 <Btn full onClick={handleInterest} disabled={actionLoading}>
                   {actionLoading ? "..." : "I'm down ✦"}
@@ -276,35 +246,8 @@ export default function MatchClient({
           </Card>
         )}
 
-        {/* Tier 2: "Confirm date" action */}
-        {tier === 2 && (
-          <Card className="fade-up fade-up-2" style={{ marginBottom: 20, textAlign: "center" }}>
-            {userConfirmed ? (
-              <div>
-                <div style={{ fontSize: 15, fontWeight: 600, color: "var(--accent)", marginBottom: 6 }}>You&apos;re confirmed!</div>
-                <p style={{ fontSize: 14, color: "var(--text-muted)", lineHeight: 1.5 }}>
-                  Waiting for {matchCard.displayName} to confirm... Once they do, Instagram will unlock.
-                </p>
-                <div style={{ marginTop: 12, padding: "10px 16px", background: "var(--accent-glow)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-                  <div style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--accent)", animation: "pulse 2s infinite" }} />
-                  <span style={{ fontSize: 13, color: "var(--accent)" }}>Waiting for confirmation...</span>
-                </div>
-              </div>
-            ) : (
-              <div>
-                <p style={{ fontSize: 14, color: "var(--text-muted)", marginBottom: 16, lineHeight: 1.5 }}>
-                  Ready to meet? Both confirm to unlock Instagram.
-                </p>
-                <Btn full onClick={handleConfirm} disabled={actionLoading}>
-                  {actionLoading ? "..." : "Confirm date ✦"}
-                </Btn>
-              </div>
-            )}
-          </Card>
-        )}
-
-        {/* Tier 3: Contact info */}
-        {tier === 3 && matchCard.instagram && (
+        {/* Tier 2: Contact info + suggested openers */}
+        {tier === 2 && matchCard.instagram && (
           <Card className="fade-up fade-up-2" style={{ marginBottom: 20 }}>
             <h3 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-muted)", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.08em" }}>Contact</h3>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -317,38 +260,15 @@ export default function MatchClient({
           </Card>
         )}
 
-        {/* Schedule (Tier 3 only) */}
-        {tier === 3 && schedule && (
-          <Card className="fade-up fade-up-2" style={{ marginBottom: 20 }}>
-            <h3 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-muted)", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.08em" }}>Your Date</h3>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ fontSize: 18 }}>📅</span>
-                <div>
-                  <div style={{ fontSize: 15, fontWeight: 500, color: "var(--text)" }}>
-                    {new Date(schedule.date + "T00:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
-                  </div>
-                  <div style={{ fontSize: 14, color: "var(--text-muted)" }}>
-                    {(() => {
-                      const [h, m] = schedule.time.split(":");
-                      const hour = parseInt(h);
-                      const ampm = hour >= 12 ? "PM" : "AM";
-                      const h12 = hour % 12 || 12;
-                      return `${h12}:${m} ${ampm}`;
-                    })()}
-                  </div>
-                </div>
+        {tier === 2 && (
+          <Card className="fade-up fade-up-3" style={{ marginBottom: 20 }}>
+            <h3 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-muted)", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.08em" }}>Suggested opener</h3>
+            {suggestedMessages.map((msg, i) => (
+              <div key={i} onClick={() => navigator.clipboard?.writeText(msg)} style={{ padding: "12px 14px", background: "var(--bg)", borderRadius: 10, marginBottom: i < suggestedMessages.length - 1 ? 8 : 0, fontSize: 14, color: "var(--text-muted)", lineHeight: 1.5, cursor: "pointer", border: "1px solid var(--border)", transition: "border 0.2s" }}>
+                {msg}
+                <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 4 }}>Click to copy</div>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ fontSize: 18 }}>📍</span>
-                <div style={{ fontSize: 15, fontWeight: 500, color: "var(--text)" }}>{schedule.location}</div>
-              </div>
-              {schedule.notes && (
-                <div style={{ fontSize: 13, color: "var(--text-dim)", fontStyle: "italic", paddingLeft: 28, lineHeight: 1.5 }}>
-                  {schedule.notes}
-                </div>
-              )}
-            </div>
+            ))}
           </Card>
         )}
 
@@ -360,19 +280,6 @@ export default function MatchClient({
               <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: i < matchCard.icebreakers.length - 1 ? "1px solid var(--border)" : "none" }}>
                 <span style={{ fontSize: 14, color: "var(--text-dim)" }}>{ib.question}</span>
                 <span style={{ fontSize: 14, fontWeight: 600, color: "var(--accent)", background: "var(--accent-glow)", padding: "4px 10px", borderRadius: 6 }}>{ib.answer}</span>
-              </div>
-            ))}
-          </Card>
-        )}
-
-        {/* Suggested openers (Tier 3 only) */}
-        {tier === 3 && (
-          <Card className="fade-up fade-up-3" style={{ marginBottom: 20 }}>
-            <h3 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-muted)", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.08em" }}>Suggested opener</h3>
-            {suggestedMessages.map((msg, i) => (
-              <div key={i} onClick={() => navigator.clipboard?.writeText(msg)} style={{ padding: "12px 14px", background: "var(--bg)", borderRadius: 10, marginBottom: i < suggestedMessages.length - 1 ? 8 : 0, fontSize: 14, color: "var(--text-muted)", lineHeight: 1.5, cursor: "pointer", border: "1px solid var(--border)", transition: "border 0.2s" }}>
-                {msg}
-                <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 4 }}>Click to copy</div>
               </div>
             ))}
           </Card>

@@ -9,16 +9,16 @@ A blind dating platform built exclusively for UBC students. Every week, users ar
 1. Sign up with a verified `@student.ubc.ca` email
 2. Complete your profile and answer 10 compatibility questions
 3. Get matched weekly with a compatible student
-4. Progress through a 3-tier reveal system:
-   - **Tier 1** -See your match's name, year, faculty, and icebreaker answers
-   - **Tier 2** -Both say "I'm down" to unlock photos
-   - **Tier 3** -Both confirm the date to unlock Instagram
+4. Progress through a 2-tier reveal system:
+   - **Preview** - See your match's name, year, faculty, and icebreaker answers
+   - **Reveal** - Both say "I'm down" to unlock photos and Instagram
 
 ## Features
 
 - **Compatibility-based matching** -Pairs users using Jaccard similarity and scale proximity scoring across questionnaire answers
 - **Gender & match preference filtering** -Users specify their gender and who they want to be matched with
-- **Progressive reveal** -A 3-tier system that gradually shares more information as mutual interest is confirmed
+- **Progressive reveal** - A 2-tier system that unlocks photos and Instagram when both users express interest
+- **Email notifications** - Users get notified when they're matched and when mutual interest is confirmed
 - **Weekly match rounds** -Fresh matches every week with no rematching of past pairs
 - **Admin dashboard** -Manage rounds, schedule dates, run the matching algorithm, and view match statistics
 

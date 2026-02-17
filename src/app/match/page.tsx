@@ -32,8 +32,6 @@ export default async function MatchPage() {
         tier={1}
         userInterested={false}
         partnerInterested={false}
-        userConfirmed={false}
-        partnerConfirmed={false}
         passed={false}
       />
     );
@@ -44,7 +42,7 @@ export default async function MatchPage() {
   // Fetch interest state for both users
   const { data: interestRows } = await supabase
     .from("match_interest")
-    .select("user_id, interested, confirmed, passed")
+    .select("user_id, interested, passed")
     .eq("match_id", match.id);
 
   const myInterest = interestRows?.find((r) => r.user_id === user.id);
@@ -52,16 +50,10 @@ export default async function MatchPage() {
 
   const userInterested = myInterest?.interested || false;
   const partnerInterested = partnerInterest?.interested || false;
-  const userConfirmed = myInterest?.confirmed || false;
-  const partnerConfirmed = partnerInterest?.confirmed || false;
   const passed = (myInterest?.passed || false) || (partnerInterest?.passed || false);
 
   const bothInterested = userInterested && partnerInterested;
-  const bothConfirmed = userConfirmed && partnerConfirmed;
-
-  let tier = 1;
-  if (bothConfirmed) tier = 3;
-  else if (bothInterested) tier = 2;
+  const tier = bothInterested ? 2 : 1;
 
   // Always fetch basic profile info (Tier 1)
   const { data: partnerProfile } = await supabase
@@ -88,12 +80,6 @@ export default async function MatchPage() {
     answer: a.answer,
   }));
 
-  const { data: scheduleData } = await supabase
-    .from("round_schedule")
-    .select("date, time, location, notes")
-    .eq("round_key", roundKey)
-    .single();
-
   const matchCard = partnerProfile
     ? {
         displayName: partnerProfile.display_name,
@@ -101,9 +87,8 @@ export default async function MatchPage() {
         year: partnerProfile.year,
         faculty: partnerProfile.faculty,
         icebreakers,
-        // Only include photo at Tier 2+, contact at Tier 3
         photoUrl: tier >= 2 ? partnerProfile.photo_url : null,
-        instagram: tier >= 3 ? partnerProfile.instagram : null,
+        instagram: tier >= 2 ? partnerProfile.instagram : null,
       }
     : null;
 
@@ -115,12 +100,9 @@ export default async function MatchPage() {
       isAdmin={profile.is_admin}
       matchCard={matchCard}
       partnerId={partnerId}
-      schedule={scheduleData}
       tier={tier}
       userInterested={userInterested}
       partnerInterested={partnerInterested}
-      userConfirmed={userConfirmed}
-      partnerConfirmed={partnerConfirmed}
       passed={passed}
     />
   );

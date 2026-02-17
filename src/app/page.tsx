@@ -114,7 +114,7 @@ export default function Home() {
 
   const faqs = [
     { q: "How does matching work?", a: "Our algorithm pairs you based on compatibility from your questionnaire answers. Each week, you get one curated match." },
-    { q: "What can my match see?", a: "At first, you both see each other's name, year, faculty, and icebreaker answers. If you both say 'I'm down', photos unlock. If you both confirm the date, contact info (Instagram & phone) is shared." },
+    { q: "What can my match see?", a: "At first, you both see each other's name, year, faculty, and icebreaker answers. If you both say 'I'm down', photos and Instagram are unlocked." },
     { q: "Is it free?", a: "Completely free. No hidden fees, no premium features behind a paywall." },
     { q: "Who can sign up?", a: "Anyone with a valid @student.ubc.ca email address. We verify every account to keep the community safe." },
     { q: "What if I don't like my match?", a: "No pressure! You're not obligated to reach out. A new match comes next week." },

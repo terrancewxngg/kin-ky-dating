@@ -31,7 +31,6 @@ export default async function DashboardPage() {
   if (match) status = "matched";
   else if (poolEntry) status = "queued";
 
-  let schedule = null;
   let tier = 1;
   let passed = false;
 
@@ -40,7 +39,7 @@ export default async function DashboardPage() {
 
     const { data: interestRows } = await supabase
       .from("match_interest")
-      .select("user_id, interested, confirmed, passed")
+      .select("user_id, interested, passed")
       .eq("match_id", match.id);
 
     const myInterest = interestRows?.find((r) => r.user_id === user.id);
@@ -49,19 +48,7 @@ export default async function DashboardPage() {
     passed = (myInterest?.passed || false) || (partnerInterest?.passed || false);
 
     const bothInterested = (myInterest?.interested || false) && (partnerInterest?.interested || false);
-    const bothConfirmed = (myInterest?.confirmed || false) && (partnerInterest?.confirmed || false);
-
-    if (bothConfirmed) tier = 3;
-    else if (bothInterested) tier = 2;
-
-    if (tier === 3 && !passed) {
-      const { data: scheduleData } = await supabase
-        .from("round_schedule")
-        .select("date, time, location, notes")
-        .eq("round_key", roundKey)
-        .single();
-      schedule = scheduleData;
-    }
+    if (bothInterested) tier = 2;
   }
 
   return (
@@ -72,7 +59,6 @@ export default async function DashboardPage() {
       isAdmin={profile.is_admin}
       roundKey={roundKey}
       initialStatus={status}
-      schedule={schedule}
       tier={tier}
       passed={passed}
     />

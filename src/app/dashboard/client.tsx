@@ -4,13 +4,6 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase-browser";
 import { Shell, Card, Nav, Btn } from "@/components/ui";
 
-interface Schedule {
-  date: string;
-  time: string;
-  location: string;
-  notes: string | null;
-}
-
 export default function DashboardClient({
   userId,
   email,
@@ -18,7 +11,6 @@ export default function DashboardClient({
   isAdmin,
   roundKey,
   initialStatus,
-  schedule,
   tier = 1,
   passed = false,
 }: {
@@ -28,7 +20,6 @@ export default function DashboardClient({
   isAdmin: boolean;
   roundKey: string;
   initialStatus: "not_joined" | "queued" | "matched";
-  schedule?: Schedule | null;
   tier?: number;
   passed?: boolean;
 }) {
@@ -54,10 +45,8 @@ export default function DashboardClient({
 
   const sc = statusConfig[status];
 
-  const matchedMessage = tier === 3
-    ? "It's a date! Contact info is unlocked. Reach out and make it happen."
-    : tier === 2
-    ? "Photos are revealed! Confirm the date to unlock contact info."
+  const matchedMessage = tier === 2
+    ? "Photos and Instagram are unlocked! Reach out and make it happen."
     : "You've been matched! See your preview and decide if you're down.";
 
   return (
@@ -93,7 +82,7 @@ export default function DashboardClient({
           {status === "queued" && (
             <div>
               <p style={{ fontSize: 14, color: "var(--text-muted)", lineHeight: 1.6 }}>
-                You&apos;re in the pool! Sit tight — matches will be revealed soon.
+                You&apos;re in the pool! Sit tight - matches will be revealed soon.
               </p>
               <div style={{ marginTop: 16, padding: "12px 16px", background: "var(--accent-glow)", borderRadius: 10, display: "flex", alignItems: "center", gap: 8 }}>
                 <div style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--accent)", animation: "pulse 2s infinite" }} />
@@ -104,7 +93,7 @@ export default function DashboardClient({
           {status === "matched" && passed && (
             <div>
               <p style={{ fontSize: 14, color: "var(--text-muted)", marginBottom: 16, lineHeight: 1.6 }}>
-                This match didn&apos;t work out. No worries — a new match comes next week.
+                This match didn&apos;t work out. No worries - a new match comes next week.
               </p>
             </div>
           )}
@@ -113,23 +102,6 @@ export default function DashboardClient({
               <p style={{ fontSize: 14, color: "var(--text-muted)", marginBottom: 16, lineHeight: 1.6 }}>
                 {matchedMessage}
               </p>
-              {tier === 3 && schedule && (
-                <div style={{ padding: "14px 16px", background: "var(--accent-glow)", borderRadius: 10, marginBottom: 16, display: "flex", flexDirection: "column", gap: 6 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: "var(--accent)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Date scheduled</div>
-                  <div style={{ fontSize: 14, color: "var(--text)" }}>
-                    📅 {new Date(schedule.date + "T00:00").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
-                    {" · "}
-                    {(() => {
-                      const [h, m] = schedule.time.split(":");
-                      const hour = parseInt(h);
-                      const ampm = hour >= 12 ? "PM" : "AM";
-                      const h12 = hour % 12 || 12;
-                      return `${h12}:${m} ${ampm}`;
-                    })()}
-                  </div>
-                  <div style={{ fontSize: 14, color: "var(--text-muted)" }}>📍 {schedule.location}</div>
-                </div>
-              )}
               <a href="/match"><Btn full>See Your Match →</Btn></a>
             </div>
           )}
@@ -138,10 +110,9 @@ export default function DashboardClient({
         <Card className="fade-up fade-up-2">
           <h3 style={{ fontSize: 15, fontWeight: 600, marginBottom: 8, color: "var(--text-muted)" }}>How the reveal works</h3>
           <div style={{ fontSize: 14, color: "var(--text-dim)", lineHeight: 1.8 }}>
-            <div style={{ display: "flex", gap: 10, marginBottom: 6 }}><span style={{ color: "var(--accent)" }}>01</span> See their vibe — name, bio, icebreakers</div>
-            <div style={{ display: "flex", gap: 10, marginBottom: 6 }}><span style={{ color: "var(--accent)" }}>02</span> Both say &quot;I&apos;m down&quot; → photos unlock</div>
-            <div style={{ display: "flex", gap: 10, marginBottom: 6 }}><span style={{ color: "var(--accent)" }}>03</span> Both confirm → contact info unlocked</div>
-            <div style={{ display: "flex", gap: 10 }}><span style={{ color: "var(--accent)" }}>04</span> Reach out, meet up, make a story</div>
+            <div style={{ display: "flex", gap: 10, marginBottom: 6 }}><span style={{ color: "var(--accent)" }}>01</span> See their vibe - name, year, icebreakers</div>
+            <div style={{ display: "flex", gap: 10, marginBottom: 6 }}><span style={{ color: "var(--accent)" }}>02</span> Both say &quot;I&apos;m down&quot; → photos + Instagram unlock</div>
+            <div style={{ display: "flex", gap: 10 }}><span style={{ color: "var(--accent)" }}>03</span> Reach out, meet up, make a story</div>
           </div>
         </Card>
       </div>
