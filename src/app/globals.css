@@ -57,3 +57,15 @@ body {
 .fade-up-3 { animation-delay: 0.15s; }
 .fade-up-4 { animation-delay: 0.2s; }
 .glow-box { animation: glow 3s ease-in-out infinite; }
+
+html { scroll-behavior: smooth; }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.landing-visible {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
